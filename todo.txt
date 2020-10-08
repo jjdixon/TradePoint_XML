@@ -1,0 +1,13 @@
+Upload file
+  Select From Explorer
+  Drag and Drop
+CSS- center, title, etc.
+JSON
+  Exclusion
+  PZ
+Create table from xml result
+  Add 4 empty spots for performance types
+  Create selector
+Make template from XLXS
+Export feature
+  Unique name

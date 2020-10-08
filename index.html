@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      function loadXMLDoc(filename) {
+        if (window.ActiveXObject) {
+          xhttp = new ActiveXObject("Msxml2.XMLHTTP");
+        } else {
+          xhttp = new XMLHttpRequest();
+        }
+        xhttp.open("GET", filename, false);
+        try {
+          xhttp.responseType = "msxml-document";
+        } catch (err) {} // Helping IE11
+        xhttp.send("");
+        console.log(xhttp.responseXML);
+        return xhttp.responseXML;
+      }
+
+      function displayResult() {
+        //console.log("got here");
+        xml = loadXMLDoc("1877731.xml");
+        // console.log(xml);
+        xsl = loadXMLDoc("XSLT_tradepoint.xsl");
+        //document.getElementById("example").innerHTML = xsl;
+        // code for IE
+        if (window.ActiveXObject || xhttp.responseType == "msxml-document") {
+          ex = xml.transformNode(xsl);
+          document.getElementById("example").innerHTML = ex;
+        }
+        // code for Chrome, Firefox, Opera, etc.
+        else if (
+          document.implementation &&
+          document.implementation.createDocument
+        ) {
+          //console.log("here2");
+          xsltProcessor = new XSLTProcessor();
+          xsltProcessor.importStylesheet(xsl);
+          resultDocument = xsltProcessor.transformToDocument(xml, document);
+          console.log(resultDocument.childNodes[0]);
+          txt = "";
+          x = resultDocument.getElementsByTagName("detail");
+          console.log(x.length);
+          console.log(x[0].getAttribute("requestby"));
+          for (i = 0; i < x.length; i++) {
+            txt +=
+              x[i].getAttribute("requestby") +
+              " " +
+              x[i].getAttribute("itemdescription") +
+              "<br>";
+          }
+          console.log(txt);
+          document.getElementById("example").innerHTML = txt;
+        }
+      }
+    </script>
+  </head>
+  <body onload="displayResult()">
+    <div id="example" />
+  </body>
+</html>
