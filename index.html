@@ -107,7 +107,7 @@
           xsltProcessor = new XSLTProcessor();
           xsltProcessor.importStylesheet(xsl);
           resultDocument = xsltProcessor.transformToDocument(xml, document);
-          //  console.log(resultDocument.childNodes[0]);
+          //console.log(resultDocument.childNodes[0]);
           txt = "";
           x = resultDocument.getElementsByTagName("detail");
           // console.log(x.length);
@@ -122,8 +122,6 @@
             tprPF = "";
             description = x[i].getAttribute("description");
             pricezone = myPZdict[x[i].getAttribute("retailname")];
-            //txt = getPZ(pricezone);
-            //console.log(txt);
             startDate = x[i].getAttribute("startdate");
             retailStartDate = x[i].getAttribute("startdate");
             endDate = x[i].getAttribute("enddate");
@@ -135,41 +133,46 @@
             // console.log($("#promo_table tr").length);
             //document.getElementById("example").innerHTML += "GOT IT";
             //$("#example").text("testtest");
-            $("#promo_table tr:last").after(
-              "<tr><td>" +
-                requestedBy +
-                "</td><td>" +
-                tradingPartner +
-                "</td><td>" +
-                priceRequestType +
-                "</td><td>" +
-                featurePF +
-                "</td><td>" +
-                displayPF +
-                "</td><td>" +
-                pricePF +
-                "</td><td>" +
-                tprPF +
-                "</td><td>" +
-                description +
-                "</td><td>" +
-                pricezone +
-                "</td><td>" +
-                startDate +
-                "</td><td>" +
-                retailStartDate +
-                "</td><td>" +
-                endDate +
-                "</td><td>" +
-                upc +
-                "</td><td>" +
-                adjustedRetail +
-                "</td><td>" +
-                wholesalePriceType +
-                "</td><td>" +
-                newWholesalePrice +
-                "</td></tr>"
-            );
+            //console.log(x[i].getAttribute("vendorname"));
+            if (excludeList.includes(x[i].getAttribute("vendorname"))) {
+              console.log(x[i].getAttribute("vendorname"));
+
+              $("#promo_table tr:last").after(
+                "<tr><td>" +
+                  requestedBy +
+                  "</td><td>" +
+                  tradingPartner +
+                  "</td><td>" +
+                  priceRequestType +
+                  "</td><td>" +
+                  featurePF +
+                  "</td><td>" +
+                  displayPF +
+                  "</td><td>" +
+                  pricePF +
+                  "</td><td>" +
+                  tprPF +
+                  "</td><td>" +
+                  description +
+                  "</td><td>" +
+                  pricezone +
+                  "</td><td>" +
+                  startDate +
+                  "</td><td>" +
+                  retailStartDate +
+                  "</td><td>" +
+                  endDate +
+                  "</td><td>" +
+                  upc +
+                  "</td><td>" +
+                  adjustedRetail +
+                  "</td><td>" +
+                  wholesalePriceType +
+                  "</td><td>" +
+                  newWholesalePrice +
+                  "</td></tr>"
+              );
+            }
           }
           //console.log(txt);
           //document.getElementById("example").innerHTML = txt;
