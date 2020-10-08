@@ -1,6 +1,51 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <style>
+      table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      td,
+      th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+
+      tr:nth-child(even) {
+        background-color: #dddddd;
+      }
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="pztable.js"></script>
+  </head>
+  <body onload="displayResult()">
+    <div id="example">test</div>
+
+    <table id="promo_table">
+      <tr>
+        <th>Requested By</th>
+        <th>Trading Partner</th>
+        <th>Price Request Type</th>
+        <th>FEATURE Performance Type</th>
+        <th>DISPLAY Performance Type</th>
+        <th>Price Performance Type</th>
+        <th>TPR Type Performance Type</th>
+        <th>Description</th>
+        <th>Price Zone</th>
+        <th>Start Date</th>
+        <th>Retail Start Date</th>
+        <th>End Date</th>
+        <th>10-digit UPC</th>
+        <th>Adjusted Retail</th>
+        <th>Wholesale Price Type</th>
+        <th>New Wholesale Price</th>
+      </tr>
+    </table>
     <script>
       function loadXMLDoc(filename) {
         if (window.ActiveXObject) {
@@ -13,12 +58,37 @@
           xhttp.responseType = "msxml-document";
         } catch (err) {} // Helping IE11
         xhttp.send("");
-        console.log(xhttp.responseXML);
+        // console.log(xhttp.responseXML);
         return xhttp.responseXML;
       }
 
+      function getPZ(myRetail) {
+        const pz_url = "PZtable.json";
+
+        $.getJSON(pz_url, function (data) {
+          var thisPZ;
+
+          $.each(data, function (item, priceZone) {
+            if ((priceZone.retailName = myRetail)) {
+              thisPZ = priceZone.PZ;
+            }
+          });
+          //console.log("PZ is:" + thisPZ);
+          return thisPZ;
+        });
+      }
+
       function displayResult() {
+        //console.log(pz);
+        //const al3_url = "al3.json";
         //console.log("got here");
+        //console.log(myPZdict);
+        //$.each(myPZdict, function (item, priceZone) {
+        //console.log(item);
+        //if ((priceZone.retailName = myRetail)) {
+        //thisPZ = priceZone.PZ;
+        //}
+
         xml = loadXMLDoc("1877731.xml");
         // console.log(xml);
         xsl = loadXMLDoc("XSLT_tradepoint.xsl");
@@ -37,25 +107,74 @@
           xsltProcessor = new XSLTProcessor();
           xsltProcessor.importStylesheet(xsl);
           resultDocument = xsltProcessor.transformToDocument(xml, document);
-          console.log(resultDocument.childNodes[0]);
+          //  console.log(resultDocument.childNodes[0]);
           txt = "";
           x = resultDocument.getElementsByTagName("detail");
-          console.log(x.length);
-          console.log(x[0].getAttribute("requestby"));
+          // console.log(x.length);
+          // console.log(x[0].getAttribute("requestby"));
           for (i = 0; i < x.length; i++) {
-            txt +=
-              x[i].getAttribute("requestby") +
-              " " +
-              x[i].getAttribute("itemdescription") +
-              "<br>";
+            requestedBy = x[i].getAttribute("requestby");
+            tradingPartner = "Kroger";
+            priceRequestType = "P";
+            featurePF = "";
+            displayPF = "";
+            pricePF = "";
+            tprPF = "";
+            description = x[i].getAttribute("description");
+            pricezone = myPZdict[x[i].getAttribute("retailname")];
+            //txt = getPZ(pricezone);
+            //console.log(txt);
+            startDate = x[i].getAttribute("startdate");
+            retailStartDate = x[i].getAttribute("startdate");
+            endDate = x[i].getAttribute("enddate");
+            upc = x[i].getAttribute("upccode").slice(3, 13);
+            adjustedRetail = x[i].getAttribute("retailprice");
+            wholesalePriceType = "WP";
+            newWholesalePrice = x[i].getAttribute("currentcost");
+            //console.log(newWholesalePrice);
+            // console.log($("#promo_table tr").length);
+            //document.getElementById("example").innerHTML += "GOT IT";
+            //$("#example").text("testtest");
+            $("#promo_table tr:last").after(
+              "<tr><td>" +
+                requestedBy +
+                "</td><td>" +
+                tradingPartner +
+                "</td><td>" +
+                priceRequestType +
+                "</td><td>" +
+                featurePF +
+                "</td><td>" +
+                displayPF +
+                "</td><td>" +
+                pricePF +
+                "</td><td>" +
+                tprPF +
+                "</td><td>" +
+                description +
+                "</td><td>" +
+                pricezone +
+                "</td><td>" +
+                startDate +
+                "</td><td>" +
+                retailStartDate +
+                "</td><td>" +
+                endDate +
+                "</td><td>" +
+                upc +
+                "</td><td>" +
+                adjustedRetail +
+                "</td><td>" +
+                wholesalePriceType +
+                "</td><td>" +
+                newWholesalePrice +
+                "</td></tr>"
+            );
           }
-          console.log(txt);
-          document.getElementById("example").innerHTML = txt;
+          //console.log(txt);
+          //document.getElementById("example").innerHTML = txt;
         }
       }
     </script>
-  </head>
-  <body onload="displayResult()">
-    <div id="example" />
   </body>
 </html>
