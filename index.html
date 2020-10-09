@@ -10,7 +10,7 @@
 
       td,
       th {
-        border: 1px solid #dddddd;
+        border: 1px solid #000000;
         text-align: left;
         padding: 8px;
       }
@@ -19,12 +19,131 @@
         background-color: #dddddd;
       }
     </style>
+    <link rel="stylesheet" href="dropzone.css" />
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.71/jquery.csv-0.71.min.js"></script>
     <script src="pztable.js"></script>
+    <script src="dropzone.js"></script>
+
+    <script>
+      function loadFile() {
+        var input, file, fr;
+
+        if (typeof window.FileReader !== "function") {
+          bodyAppend("p", "The file API isn't supported on this browser yet.");
+          return;
+        }
+
+        input = document.getElementById("fileinput");
+        if (!input) {
+          bodyAppend("p", "Um, couldn't find the fileinput element.");
+        } else if (!input.files) {
+          bodyAppend(
+            "p",
+            "This browser doesn't seem to support the `files` property of file inputs."
+          );
+        } else if (!input.files[0]) {
+          bodyAppend("p", "Please select a file before clicking 'Load'");
+        } else {
+          file = input.files[0];
+          fr = new FileReader();
+          fr.onload = receivedText;
+          fr.readAsText(file);
+        }
+
+        function receivedText() {
+          var doc = parser.parseFromString(fr.result, "text/xml");
+          xsltProcessor = new XSLTProcessor();
+          xsltProcessor.importStylesheet(xsl);
+          resultDocuments = xsltProcessor.transformToDocument(xml, document);
+          console.log(resultDocuments.childNodes[0]);
+          x = resultDocuments.getElementsByTagName("detail");
+          // console.log(x.length);
+          // console.log(x[0].getAttribute("requestby"));
+          for (i = 0; i < x.length; i++) {
+            requestedBy = x[i].getAttribute("requestby");
+            tradingPartner = "Kroger";
+            priceRequestType = "P";
+            featurePF =
+              "<select id='feature'><option></option><option>Ad (N/DM)</option><option>Ad (In-sto)</option></select>";
+            displayPF =
+              "<select id='feature'><option></option><option>4-Way</option><option>Bookcase</option><option>Bridge</option><option>Bunker</option><option>Corrgulate</option><option>Dump</option><option>End Cap</option><option>Lobby</option><option>Rolling</option><option>Saddlebag</option><option>Shelf</option><option>Shipper</option><option>Spinner</option><option>Straight</option><option>Stuffing</option><option>Table</option><option>Window</option><option>Wire</option><option>&ltother&gt</option></select>";
+            pricePF =
+              "<select id='feature'><option></option><option>Fl Ln</option><option>Extnd TPR</option><option>Rdmptn</option><option>Sbldr</option></select>";
+            tprPF =
+              "<select id='feature'><option></option><option>B2F$3</option><option>B2F$4</option><option>B2F$5</option><option>B2F$6</option><option>B2F$7</option><option>B3F$5</option><option>B1G1</option><option>B1G2</option><option>B2G1</option><option>B2G3</option><option>B1S$1</option><option>B2S$2</option><option>-0.05%</option><option>-0.1%</option><option>-0.15%</option><option>-0.2%</option><option>-0.25%</option><option>-0.3%</option><option>-0.35%</option><option>-0.4%</option><option>-0.45%</option><option>-0.5%</option><option>SglPrc</option></select>";
+            description = x[i].getAttribute("description");
+            pricezone = myPZdict[x[i].getAttribute("retailname")];
+            startDate = x[i].getAttribute("startdate");
+            retailStartDate = x[i].getAttribute("startdate");
+            endDate = x[i].getAttribute("enddate");
+            upc = x[i].getAttribute("upccode").slice(3, 13);
+            adjustedRetail = x[i].getAttribute("retailprice");
+            wholesalePriceType = "WP";
+            newWholesalePrice = x[i].getAttribute("currentcost");
+            //console.log(newWholesalePrice);
+            // console.log($("#promo_table tr").length);
+            //document.getElementById("example").innerHTML += "GOT IT";
+            //$("#example").text("testtest");
+            //console.log(x[i].getAttribute("vendorname"));
+            if (excludeList.includes(x[i].getAttribute("vendorname"))) {
+              //console.log(x[i].getAttribute("vendorname"));
+
+              $("#promo_table tr:last").after(
+                "<tr><td>" +
+                  requestedBy +
+                  "</td><td>" +
+                  tradingPartner +
+                  "</td><td>" +
+                  priceRequestType +
+                  "</td><td>" +
+                  featurePF +
+                  "</td><td>" +
+                  displayPF +
+                  "</td><td>" +
+                  pricePF +
+                  "</td><td>" +
+                  tprPF +
+                  "</td><td>" +
+                  description +
+                  "</td><td>" +
+                  pricezone +
+                  "</td><td>" +
+                  startDate +
+                  "</td><td>" +
+                  retailStartDate +
+                  "</td><td>" +
+                  endDate +
+                  "</td><td>" +
+                  upc +
+                  "</td><td>" +
+                  adjustedRetail +
+                  "</td><td>" +
+                  wholesalePriceType +
+                  "</td><td>" +
+                  newWholesalePrice +
+                  "</td></tr>"
+              );
+            }
+          }
+        }
+      }
+
+      //var xmlString = "<root><thing attr='val'/></root>";
+      var parser = new DOMParser();
+      //var doc = parser.parseFromString(xmlString, "text/xml");
+      //console.log(doc.childNodes.length);
+    </script>
   </head>
   <body onload="displayResult()">
-    <div id="example"></div>
+    <div id="example">
+      <form action="#" onsubmit="return false;">
+        <input type="file" id="fileinput" accept=".xml" />
+        <input type="button" id="btnLoad" value="Load" onclick="loadFile();" />
+      </form>
+    </div>
 
     <table id="promo_table">
       <tr>
@@ -90,7 +209,7 @@
         //}
 
         xml = loadXMLDoc("1877731.xml");
-        // console.log(xml);
+        //console.log(xml);
         xsl = loadXMLDoc("XSLT_tradepoint.xsl");
         //document.getElementById("example").innerHTML = xsl;
         // code for IE
@@ -104,11 +223,11 @@
           document.implementation.createDocument
         ) {
           //console.log("here2");
-          xsltProcessor = new XSLTProcessor();
-          xsltProcessor.importStylesheet(xsl);
-          resultDocument = xsltProcessor.transformToDocument(xml, document);
+          //xsltProcessor = new XSLTProcessor();
+          // xsltProcessor.importStylesheet(xsl);
+          //resultDocument = xsltProcessor.transformToDocument(xml, document);
           //console.log(resultDocument.childNodes[0]);
-          txt = "";
+          //txt = "";
           x = resultDocument.getElementsByTagName("detail");
           // console.log(x.length);
           // console.log(x[0].getAttribute("requestby"));
@@ -139,7 +258,7 @@
             //$("#example").text("testtest");
             //console.log(x[i].getAttribute("vendorname"));
             if (excludeList.includes(x[i].getAttribute("vendorname"))) {
-              console.log(x[i].getAttribute("vendorname"));
+              //console.log(x[i].getAttribute("vendorname"));
 
               $("#promo_table tr:last").after(
                 "<tr><td>" +
